@@ -166,6 +166,8 @@ class SchemaObject(object):
         @return: The schema's target namespace
         @rtype: (I{prefix},I{URI})
         """
+        if self.ref is not None:
+            return ('', self.ref[1])
         ns = self.schema.tns
         if ns[0] is None:
             ns = (prefix, ns[1])
