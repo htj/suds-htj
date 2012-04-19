@@ -1,3 +1,6 @@
+This is a fork of SUDS with some patches (most, if not all from the bug
+tracker) as SUDS appears to be without a maintainer.
+
 OVERVIEW
 
 The "Suds" web services client is a lightweight soap-based client for python
@@ -8,7 +11,7 @@ For details, visit:
   * Project site: https://fedorahosted.org/suds/
   * Documentation: https://fedorahosted.org/suds/wiki/Documentation
   * Epydocs: http://jortel.fedorapeople.org/suds/doc/
-   
+
 
 RELEASE-NOTES:
 =================================================
