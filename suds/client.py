@@ -620,7 +620,9 @@ class SoapClient:
         binding = self.method.binding.input
         transport = self.options.transport
         retxml = self.options.retxml
+        nosend = self.options.nosend
         prettyxml = self.options.prettyxml
+        timer = metrics.Timer()
         log.debug('sending to (%s)\nmessage:\n%s', location, soapenv)
         try:
             self.last_sent(soapenv)
@@ -631,10 +633,16 @@ class SoapClient:
             else:
                 soapenv = soapenv.plain()
             soapenv = soapenv.encode('utf-8')
-            plugins.message.sending(envelope=soapenv)
+            ctx = plugins.message.sending(envelope=soapenv)
+            soapenv = ctx.envelope
+            if nosend:
+                return RequestContext(self, binding, soapenv)
             request = Request(location, soapenv)
             request.headers = self.headers()
+            timer.start()
             reply = transport.send(request)
+            timer.stop()
+            metrics.log.debug('waited %s on server reply', timer)
             ctx = plugins.message.received(reply=reply.message)
             reply.message = ctx.reply
             if retxml:
@@ -656,6 +664,8 @@ class SoapClient:
         @rtype: dict
         """
         action = self.method.soap.action
+        if isinstance(action, unicode):
+            action = action.encode('utf-8')
         stock = { 'Content-Type' : 'text/xml; charset=utf-8', 'SOAPAction': action }
         result = dict(stock, **self.options.headers)
         log.debug('headers = %s', result)
@@ -783,3 +793,52 @@ class SimClient(SoapClient):
             return (500, p)
         else:
             return (500, None)
+        
+
+class RequestContext:
+    """
+    A request context.
+    Returned when the ''nosend'' options is specified.
+    @ivar client: The suds client.
+    @type client: L{Client}
+    @ivar binding: The binding for this request.
+    @type binding: I{Binding}
+    @ivar envelope: The request soap envelope.
+    @type envelope: str
+    """
+    
+    def __init__(self, client, binding, envelope):
+        """
+        @param client: The suds client.
+        @type client: L{Client}
+        @param binding: The binding for this request.
+        @type binding: I{Binding}
+        @param envelope: The request soap envelope.
+        @type envelope: str
+        """
+        self.client = client
+        self.binding = binding
+        self.envelope = envelope
+        
+    def succeeded(self, reply):
+        """
+        Re-entry for processing a successful reply.
+        @param reply: The reply soap envelope.
+        @type reply: str
+        @return: The returned value for the invoked method.
+        @rtype: object 
+        """
+        options = self.client.options
+        plugins = PluginContainer(options.plugins)
+        ctx = plugins.message.received(reply=reply)
+        reply = ctx.reply
+        return self.client.succeeded(self.binding, reply)
+    
+    def failed(self, error):
+        """
+        Re-entry for processing a failure reply.
+        @param error: The error returned by the transport.
+        @type error: A suds I{TransportError}.
+        """
+        return self.client.failed(self.binding, error)
+        
