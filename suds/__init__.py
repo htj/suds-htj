@@ -26,8 +26,8 @@ import sys
 # Project properties
 #
 
-__version__ = '0.4.1'
-__build__="(beta) R705-20101207"
+__version__ = '0.4.1-htj'
+__build__="R705-20120419"
 
 #
 # Exceptions
