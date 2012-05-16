@@ -56,18 +56,22 @@ class Date(object):
     """
     __slots__ = ('value', )
 
-    def __init__(self, value):
+    def __init__(self, value, nillable=False):
         """Constructor.
 
         @param value: The date value of the object.
         @type value: (datetime.date|str)
+        @param nillable: Whether object is nillable.
         @raise ValueError: When I{value} is invalid.
 
         """
         if isinstance(value, datetime.date):
             self.value = value
         elif isinstance(value, basestring):
-            self.value = self.parse(value)
+            if nillable and value.strip() == '':
+                self.value = None
+            else:
+                self.value = self.parse(value)
         else:
             raise ValueError('invalid type for Date(): %s' % (type(value), ))
 
@@ -78,7 +82,7 @@ class Date(object):
         This supports the subset of ISO8601 used by xsd:date, but is lenient
         with what is accepted, handling most reasonable syntax.
 
-        Any timezone is parsed but ignored  because a) it's meaningless without
+        Any timezone is parsed but ignored because a) it's meaningless without
         a time and b) B{datetime}.I{date} does not support a tzinfo property.
 
         @param value: A date string.
@@ -111,18 +115,22 @@ class Time(object):
     """
     __slots__ = ('value', )
 
-    def __init__(self, value):
+    def __init__(self, value, nillable=False):
         """Constructor.
 
         @param value: The time value of the object.
         @type value: (dateime.time|str)
+        @param nillable: Whether object is nillable.
         @raise ValueError: When I{value} is invalid.
 
         """
         if isinstance(value, datetime.time):
             self.value = value
         elif isinstance(value, basestring):
-            self.value = self.parse(value)
+            if nillable and value.strip() == '':
+                self.value = None
+            else:
+                self.value = self.parse(value)
         else:
             raise ValueError('invalid type for Time(): %s' % (type(value), ))
 
@@ -166,18 +174,22 @@ class DateTime(object):
     """
     __slots__ = ('value', )
 
-    def __init__(self, value):
+    def __init__(self, value, nillable=False):
         """Constructor.
 
         @param value: The datetime value of the object.
         @type value: (datetime.datetime|str)
+        @param nillable: Whether object is nillable.
         @raise ValueError: When I{value} is invalid.
 
         """
         if isinstance(value, datetime.datetime):
             self.value = value
         elif isinstance(value, basestring):
-            self.value = self.parse(value)
+            if nillable and value.strip() == '':
+                self.value = None
+            else:
+                self.value = self.parse(value)
         else:
             raise ValueError('invalid type for DateTime(): %s' % (type(value), ))
 
