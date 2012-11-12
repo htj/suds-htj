@@ -20,7 +20,7 @@ Contains basic caching classes.
 
 import os
 import suds
-from tempfile import gettempdir as tmp
+from tempfile import mkdtemp
 from suds.transport import *
 from suds.sax.parser import Parser
 from suds.sax.element import Element
@@ -138,7 +138,7 @@ class FileCache(Cache):
         @type duration: {unit:value}
         """
         if location is None:
-            location = os.path.join(tmp(), 'suds')
+            location = mkdtemp(prefix='suds_')
         self.location = location
         self.duration = (None, 0)
         self.setduration(**duration)
