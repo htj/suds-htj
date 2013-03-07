@@ -1,3 +1,6 @@
+I am no longer using SUDS and cannot spend time on maintanance, etc.
+If someone wants to take over, feel free to fork the project.
+
 This is a fork of SUDS with some patches (most, if not all from the bug
 tracker) as SUDS appears to be without a maintainer.
 
